@@ -1,7 +1,9 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/capybarabrain346/mopi/handlers/database"
@@ -11,29 +13,37 @@ import (
 
 func GetMovie(w http.ResponseWriter, r *http.Request) {
 	movie_name := chi.URLParam(r, "movie_name")
-	movie_info, err := database.DBGet(movie_name)
+	dbResponse, err := database.DBGet(movie_name)
 
 	if err != nil {
+		log.Println(err)
 		w.WriteHeader(422)
 		w.Write([]byte(fmt.Sprintf("error fetching movie info for %s", movie_name)))
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(JsonifyGetMovie(movie_info)))
+	w.Write([]byte(Jsonify(dbResponse)))
 }
 
 func CreateMovie(w http.ResponseWriter, r *http.Request) {
-	movie_name := chi.URLParam(r, "movie_name")
-	movie_release_date := chi.URLParam(r, "movie_release_date")
+	var M models.MovieSchema
+	err := json.NewDecoder(r.Body).Decode(&M)
 
-	new_movie_object := models.MovieSchema{
-		Title:       movie_name,
-		ReleaseDate: movie_release_date,
+	if err != nil {
+		fmt.Println("Error parsing json request.")
+	}
+	fmt.Println(M.Name)
+	dbResponse, err := database.DBWrite(M)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		w.Write([]byte(fmt.Sprintf("Error entering movie: %s", M.Name)))
 	}
 
-	create_movie := database.DBWrite(new_movie_object)
+	if dbResponse > 0 {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(fmt.Sprintf("Database updated with \n %s", Jsonify(M))))
+	}
 
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(create_movie))
 }

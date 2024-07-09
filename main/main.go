@@ -25,6 +25,8 @@ func main() {
 	})
 
 	r.Get("/movie/{movie_name}", api.GetMovie)
-	r.Post("/createmovie/{movie_name}-{movie_release_date}", api.CreateMovie)
-	http.ListenAndServe(":3000", r)
+	r.Post("/movie", api.CreateMovie)
+
+	const port string = ":3000"
+	http.ListenAndServe(port, r)
 }
