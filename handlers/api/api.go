@@ -47,3 +47,19 @@ func CreateMovie(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func DeleteMovie(w http.ResponseWriter, r *http.Request) {
+	movie_name := chi.URLParam(r, "movie_name")
+	dbResponse, err := database.DBDelete(movie_name)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(500)
+		w.Write([]byte(fmt.Sprintf("Error deleting movie: %s", movie_name)))
+	}
+
+	if dbResponse > 0 {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(fmt.Sprintf("Deleted movie : %s", movie_name)))
+	}
+
+}

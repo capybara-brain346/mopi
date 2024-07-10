@@ -26,6 +26,7 @@ func main() {
 
 	r.Get("/movie/{movie_name}", api.GetMovie)
 	r.Post("/movie", api.CreateMovie)
+	r.Delete("/movie/{movie_name}", api.DeleteMovie)
 
 	const port string = ":3000"
 	http.ListenAndServe(port, r)

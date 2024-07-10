@@ -45,7 +45,7 @@ func DBWrite(create_movie models.MovieSchema) (int64, error) {
 	if err != nil {
 		log.Println(err)
 	}
-	
+
 	statement, err := database.Prepare(`INSERT INTO movie_table (Name, Rating, Genre, Year, Released, 
 									Score, Votes, Director, Writer, Star, Country, Budget, Gross, Company, Runtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
 	if err != nil {
@@ -60,4 +60,26 @@ func DBWrite(create_movie models.MovieSchema) (int64, error) {
 	}
 
 	return result.RowsAffected()
+}
+
+func DBDelete(delete_movie string) (int64, error) {
+	var database, err = sql.Open("sqlite3", file)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+
+	statement, err := database.Prepare("DELETE FROM movie_table WHERE name=?")
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+
+	result, err := statement.Exec(delete_movie)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+	return result.RowsAffected()
+
 }
